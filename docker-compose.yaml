@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: service-postgres
+    image: postgres:14
+    environment:
+      - POSTGRES_DB=news_service_db_1
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    ports:
+      - '5432'
+    volumes:
+      - ./postgresql/schemas/db_1.sql:/docker-entrypoint-initdb.d/1-db_1.sql
+      - ./postgresql/data/data_db_1.sql:/docker-entrypoint-initdb.d/2-data_db_1.sql
+      - ./.pgdata:/var/lib/postgresql/data
+    networks:
+      - postgres
+  news-service-container:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '8080:8080'
+    depends_on:
+      - postgres
+    networks:
+      - postgres
+
+networks:
+  postgres:
+    driver: bridge
